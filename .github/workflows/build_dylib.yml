@@ -11,7 +11,7 @@ jobs:
       - name: Compile dylib for iOS arm64
         run: |
           SDK_PATH=$(xcrun --sdk iphoneos --show-sdk-path)
-          clang -arch arm64 -isysroot $SDK_PATH -miphoneos-version-min=14.0 -dynamiclib -std=c++17 -framework Foundation dumper.mm -o MetaDump.dylib
+          clang++ -arch arm64 -isysroot $SDK_PATH -miphoneos-version-min=14.0 -dynamiclib -std=c++17 -fobjc-arc -framework Foundation dumper.mm -o MetaDump.dylib
           ldid -S MetaDump.dylib || codesign -f -s - MetaDump.dylib
 
       - name: Upload Dylib
