@@ -14,8 +14,8 @@ jobs:
       - name: Install gdown & Download files from Drive
         run: |
           pip install -q gdown
-          gdown --fuzzy "https://drive.google.com/file/d/1hRYIf3lnvmAtggOpN8ooeHM8wCVTE0D9/view?usp=drivesdk" -O UnityFramework
-          gdown --fuzzy "https://drive.google.com/file/d/1bSwoFqozF1PGhEdfyKzUxsW8n2TY9AXc/view?usp=drivesdk" -O global-metadata.dat
+          gdown "https://drive.google.com/file/d/1hRYIf3lnvmAtggOpN8ooeHM8wCVTE0D9/view?usp=drivesdk" -O UnityFramework
+          gdown "https://drive.google.com/file/d/1bSwoFqozF1PGhEdfyKzUxsW8n2TY9AXc/view?usp=drivesdk" -O global-metadata.dat
           ls -lh UnityFramework global-metadata.dat
           xxd -l 16 global-metadata.dat
 
