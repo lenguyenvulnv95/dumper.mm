@@ -1,0 +1,34 @@
+name: Run Il2CppDumper
+on:
+  workflow_dispatch:
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Install gdown & Download files from Drive
+        run: |
+          pip install -q gdown
+          gdown --fuzzy "https://drive.google.com/file/d/1hRYIf3lnvmAtggOpN8ooeHM8wCVTE0D9/view?usp=drivesdk" -O UnityFramework
+          gdown --fuzzy "https://drive.google.com/file/d/1bSwoFqozF1PGhEdfyKzUxsW8n2TY9AXc/view?usp=drivesdk" -O global-metadata.dat
+          ls -lh UnityFramework global-metadata.dat
+          xxd -l 16 global-metadata.dat
+
+      - name: Download & Execute Il2CppDumper
+        run: |
+          wget -q https://github.com/Perfare/Il2CppDumper/releases/download/v6.7.46/Il2CppDumper-net6-v6.7.46.zip
+          unzip -q Il2CppDumper-net6-v6.7.46.zip -d dumper
+          sed -i 's/"RequireAnyKey": true/"RequireAnyKey": false/' dumper/config.json
+          mkdir -p output
+          dotnet dumper/Il2CppDumper.dll UnityFramework global-metadata.dat output/
+
+      - name: Upload Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: dump-result
+          path: output/
