@@ -25,18 +25,16 @@ jobs:
           mkdir -p output
           dotnet dumper/Il2CppDumper.dll UnityFramework global-metadata.dat output/
 
-      - name: Extract ESP Offsets
+      - name: Extract Final RVAs
         run: |
-          echo "=== 1. CAMERA ==="
-          grep -n -B 2 -A 1 "public static Camera get_main()" output/dump.cs || true
-          grep -n -B 2 -A 1 "public Vector3 WorldToScreenPoint(Vector3 position)" output/dump.cs || true
+          echo "=== 1. HP GETTERS ==="
+          grep -n -B 2 -A 1 "public int get_actorHp()" output/dump.cs | head -n 12 || true
+          grep -n -B 2 -A 1 "public int get_actorHpTotal()" output/dump.cs | head -n 12 || true
 
-          echo "=== 2. ACTORMETA ==="
-          grep -n -A 25 "struct ActorMeta" output/dump.cs || grep -n -A 25 "class ActorMeta" output/dump.cs || true
+          echo "=== 2. ACTORMANAGER INSTANCE ==="
+          grep -n -B 5 -A 10 "class ActorManager" output/dump.cs | head -n 25 || true
+          grep -n -B 2 -A 1 "GetInstance()" output/dump.cs | grep -i -C 2 "ActorManager" || true
 
-          echo "=== 3. VALUEPROPERTYCOMPONENT (HP) ==="
-          grep -n -A 60 "class ValuePropertyComponent" output/dump.cs | grep -E "Hp|hp|0x|RVA" | head -n 40 || true
-
-          echo "=== 4. HERO LIST & MANAGER ==="
-          grep -n -B 5 -A 5 "HeroActors" output/dump.cs | head -n 40 || true
-          grep -n -B 2 -A 1 "public void UpdateLogic(" output/dump.cs | head -n 20 || true
+          echo "=== 3. ACTORLINKER FIELDS ==="
+          grep -n -A 45 "public class ActorLinker" output/dump.cs | grep -E "0x|ActorCamp|ActorMeta|ValueComponent|position|Position|LActorRoot" | head -n 30 || true
+          grep -n -B 2 -A 1 "public Vector3 get_position()" output/dump.cs | head -n 12 || true
