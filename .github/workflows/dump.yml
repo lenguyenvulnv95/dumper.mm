@@ -16,8 +16,6 @@ jobs:
           pip install -q gdown
           gdown "https://drive.google.com/file/d/1hRYIf3lnvmAtggOpN8ooeHM8wCVTE0D9/view?usp=drivesdk" -O UnityFramework
           gdown "https://drive.google.com/file/d/1bSwoFqozF1PGhEdfyKzUxsW8n2TY9AXc/view?usp=drivesdk" -O global-metadata.dat
-          ls -lh UnityFramework global-metadata.dat
-          xxd -l 16 global-metadata.dat
 
       - name: Download & Execute Il2CppDumper
         run: |
@@ -27,8 +25,16 @@ jobs:
           mkdir -p output
           dotnet dumper/Il2CppDumper.dll UnityFramework global-metadata.dat output/
 
-      - name: Upload Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: dump-result
-          path: output/
+      - name: Extract ESP Offsets
+        run: |
+          echo "=== 1. CAMERA ==="
+          grep -n -A 45 "public sealed class Camera :" output/dump.cs | grep -E "get_main|WorldToScreenPoint|RVA" || true
+
+          echo "=== 2. LACTORROOT / ACTOR ==="
+          grep -n -A 80 "class LActorRoot" output/dump.cs | grep -E "location|TheActorMeta|ValueComponent|Visible|RVA|0x" || true
+
+          echo "=== 3. GAMEOBJMGR ==="
+          grep -n -A 60 "class GameObjMgr" output/dump.cs | grep -E "HeroActors|AllActors|Update|0x|RVA" || true
+
+          echo "=== 4. VALUECOMPONENT (HP) ==="
+          grep -n -A 50 "class ValueComponent" output/dump.cs | grep -E "actorHp|actorHpTotal|get_actorHp|0x|RVA" || true
